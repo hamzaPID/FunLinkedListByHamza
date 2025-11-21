@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FunLinkedListByHamza – Recursive Insert/Delete End</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+    }
+    #container {
+      display: flex;
+      height: 100vh;
+    }
+    #left {
+      width: 460px;
+      background: #ffffff;
+      border-right: 1px solid #ddd;
+      padding: 14px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    #left h1 {
+      font-size: 18px;
+      margin: 0 0 4px;
+    }
+    #left h2 {
+      font-size: 14px;
+      margin: 0 0 10px;
+      color: #666;
+    }
+    #modeButtons {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #888;
+      background: #fafafa;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .mode-btn.active {
+      background: #2a7ae2;
+      color: #fff;
+      border-color: #2a7ae2;
+    }
+    #scenarioDesc {
+      font-size: 13px;
+      margin-bottom: 8px;
+      padding: 6px 8px;
+      background: #f0f4ff;
+      border-radius: 6px;
+    }
+    #codePanel {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #0d1117;
+      color: #c9d1d9;
+      padding: 8px;
+      overflow: auto;
+      font-family: "Fira Code", monospace;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .code-line {
+      white-space: pre;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    .code-line span.lineno {
+      color: #6e7681;
+      display: inline-block;
+      width: 28px;
+    }
+    .code-line.active {
+      background: #1f6feb33;
+      border-left: 3px solid #58a6ff;
+    }
+    #controlsBar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    #controlsBar button {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #888;
+      background: #fafafa;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    #controlsBar button:hover {
+      background: #e8f0ff;
+    }
+    #statusText {
+      font-size: 12px;
+      color: #555;
+      min-height: 32px;
+    }
+    #right {
+      flex: 1;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+    #vizCanvas {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="left">
+      <h1>FunControlSystemsByHamza</h1>
+      <h2>Recursive Linked List – Insert / Delete End</h2>
+
+      <div id="modeButtons">
+        <button id="btnInsert" class="mode-btn active">Insert at End (apple)</button>
+        <button id="btnDelete" class="mode-btn">Delete Last Node (delend)</button>
+      </div>
+
+      <div id="scenarioDesc">
+        Starting list: <code>5 → 6 → 8</code>.<br>
+        <b>Insertion:</b> recursively insert <code>9</code> at the end using <code>apple</code>/<code>app</code>.
+      </div>
+
+      <div id="codePanel"></div>
+
+      <div id="controlsBar">
+        <button id="btnStep">▶ Step</button>
+        <button id="btnPlay">▶ Auto Play</button>
+        <button id="btnReset">⟲ Reset</button>
+      </div>
+
+      <div id="statusText">Click <b>Step</b> to follow the recursion.</div>
+    </div>
+
+    <div id="right">
+      <canvas id="vizCanvas"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // ============ Canvas setup ============
+    const canvas = document.getElementById("vizCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+      if (steps.length > 0) renderStep(currentStep);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    setTimeout(resizeCanvas, 50);
+
+    // ============ UI elements ============
+    const btnInsert = document.getElementById("btnInsert");
+    const btnDelete = document.getElementById("btnDelete");
+    const btnStep   = document.getElementById("btnStep");
+    const btnPlay   = document.getElementById("btnPlay");
+    const btnReset  = document.getElementById("btnReset");
+    const scenarioDesc = document.getElementById("scenarioDesc");
+    const codePanel    = document.getElementById("codePanel");
+    const statusText   = document.getElementById("statusText");
+
+    let mode = "insert"; // 'insert' | 'delete'
+
+    // ============ Your exact C++ code snippet ============
+    const cppLines = [
+"#include <iostream>",
+"using namespace std;",
+"struct node",
+"{",
+"  int a;",
+"  node *next;",
+"};",
+"class list",
+"{",
+"    node*head;",
+"    public:",
+"    list()",
+"    {head = NULL;}",
+"   void apple(node*n, int x) //insert at END function",
+"   {   if(head  == NULL)",
+"       {   node*temp = new node;",
+"       temp->a = x;",
+"        temp->next = head;",
+"        head = temp;",
+"           return;",
+"       }",
+"       if(n->next==NULL)",
+"       {",
+"           node*temp = new node;",
+"               temp->a = x;",
+"              n->next = temp;",
+"           temp->next = NULL;",
+"           return;",
+"       }",
+"       apple(n->next, x);",
+"   }",
+"   void app(int x) //Head is private",
+"   {",
+"       apple(head, x);",
+"   }",
+"   void delend(node*n) //delete at End Function",
+"   {   if(n->next->next==NULL)",
+"       {    node *temp = n->next;",
+"            delete temp;",
+"            n->next = NULL;",
+"            return;",
+"       }",
+"       if(head==NULL)",
+"       {",
+"           return;",
+"       }",
+"       delend(n->next);",
+"   }",
+"   void del() //Head is private",
+"   {",
+"       delend(head);",
+"   }",
+"};"
+    ];
+
+    function renderCode() {
+      codePanel.innerHTML = "";
+      cppLines.forEach((line, idx) => {
+        const div = document.createElement("div");
+        div.className = "code-line";
+        div.dataset.line = (idx + 1).toString();
+        const ln = document.createElement("span");
+        ln.className = "lineno";
+        ln.textContent = (idx + 1).toString().padStart(2, " ");
+        const codeSpan = document.createElement("span");
+        codeSpan.textContent = " " + line;
+        div.appendChild(ln);
+        div.appendChild(codeSpan);
+        codePanel.appendChild(div);
+      });
+    }
+
+    function highlightLine(n) {
+      const lines = codePanel.querySelectorAll(".code-line");
+      lines.forEach(l => l.classList.remove("active"));
+      const target = codePanel.querySelector(`.code-line[data-line="${n}"]`);
+      if (target) {
+        target.classList.add("active");
+        const top = target.offsetTop;
+        const bottom = top + target.offsetHeight;
+        if (top < codePanel.scrollTop) {
+          codePanel.scrollTop = top - 10;
+        } else if (bottom > codePanel.scrollTop + codePanel.clientHeight) {
+          codePanel.scrollTop = bottom - codePanel.clientHeight + 10;
+        }
+      }
+    }
+
+    // ============ Linked list simulation ============
+    // Node model: {id, value, nextId}
+    let steps = [];
+    let currentStep = 0;
+    let playTimer = null;
+
+    function cloneNodes(nodes) {
+      return JSON.parse(JSON.stringify(nodes));
+    }
+
+    // line numbers from cppLines (1-based):
+    const L_APPLE_SIG   = 13; // "void apple(node*n, int x)"
+    const L_IF_HEAD_NULL = 14;
+    const L_NEW_HEAD_START = 15; // inside head==NULL block
+    const L_RETURN_AFTER_HEAD = 20;
+    const L_IF_LAST_NODE  = 21;
+    const L_NEW_LAST_START = 23;
+    const L_RETURN_AFTER_LAST = 28;
+    const L_RECURSE_APPLE = 30;
+    const L_APP_SIG       = 31;
+    const L_APP_BODY_CALL = 34;
+
+    const L_DELEND_SIG    = 35;
+    const L_IF_SECOND_LAST = 36;
+    const L_DELETE_BLOCK_START = 37;
+    const L_RETURN_AFTER_DEL   = 40;
+    const L_IF_HEAD_NULL_DEL   = 41;
+    const L_RETURN_IF_NULL_DEL = 43;
+    const L_RECURSE_DELEND     = 44;
+    const L_DEL_SIG            = 45;
+    const L_DEL_BODY_CALL      = 48;
+
+    function buildInsertSteps() {
+      // Start with p1: 5 -> 6 -> 8, then app(9)
+      let nodes = [
+        {id: 0, value: 5, nextId: 1},
+        {id: 1, value: 6, nextId: 2},
+        {id: 2, value: 8, nextId: null}
+      ];
+      let headId = 0;
+      let nextId = 3;
+      const x = 9;
+      const s = [];
+
+      function snapshot(line, currentId, depth, msg) {
+        s.push({
+          line,
+          msg,
+          depth,
+          headId,
+          nodes: cloneNodes(nodes),
+          currentId
+        });
+      }
+
+      snapshot(L_APP_SIG, headId, 0, "Call app(" + x + ");");
+      snapshot(L_APP_BODY_CALL, headId, 0, "Call apple(head, x).");
+
+      function rec(nodeId, depth) {
+        snapshot(L_APPLE_SIG, nodeId, depth, "apple called with node pointer n.");
+        // In this example head is never NULL (we already have 5→6→8),
+        // but we still show that check.
+        snapshot(L_IF_HEAD_NULL, nodeId, depth, "Is head == NULL?");
+        if (headId === null) {
+          snapshot(L_NEW_HEAD_START, null, depth, "Create first node when list is empty.");
+          const newNode = {id: nextId++, value: x, nextId: headId};
+          nodes.push(newNode);
+          headId = newNode.id;
+          snapshot(L_RETURN_AFTER_HEAD, headId, depth, "Return after inserting first node.");
+          return;
+        }
+
+        const node = nodes.find(n => n.id === nodeId);
+        snapshot(L_IF_LAST_NODE, nodeId, depth, "Is n->next == NULL? (Are we at last node?)");
+        if (node.nextId === null) {
+          snapshot(L_NEW_LAST_START, nodeId, depth, "Last node found, create new node at end.");
+          const newNode = {id: nextId++, value: x, nextId: null};
+          nodes.push(newNode);
+          node.nextId = newNode.id;
+          snapshot(L_RETURN_AFTER_LAST, nodeId, depth, "Set n->next to new node, return.");
+          return;
+        } else {
+          snapshot(L_RECURSE_APPLE, node.nextId, depth + 1, "Recurse: apple(n->next, x).");
+          rec(node.nextId, depth + 1);
+          snapshot(L_RECURSE_APPLE, nodeId, depth, "Return to previous call.");
+        }
+      }
+
+      rec(headId, 0);
+      snapshot(L_APP_BODY_CALL, headId, 0, "Back in app(): apple finished.");
+      snapshot(L_APP_SIG, headId, 0, "Final list after insertion.");
+      return s;
+    }
+
+    function buildDeleteSteps() {
+      // Start with p1: 5 -> 6 -> 8 -> 9, then del()
+      let nodes = [
+        {id: 0, value: 5, nextId: 1},
+        {id: 1, value: 6, nextId: 2},
+        {id: 2, value: 8, nextId: 3},
+        {id: 3, value: 9, nextId: null}
+      ];
+      let headId = 0;
+      const s = [];
+
+      function snapshot(line, currentId, depth, msg) {
+        s.push({
+          line,
+          msg,
+          depth,
+          headId,
+          nodes: cloneNodes(nodes),
+          currentId
+        });
+      }
+
+      snapshot(L_DEL_SIG, headId, 0, "Call del();");
+      snapshot(L_DEL_BODY_CALL, headId, 0, "Call delend(head).");
+
+      function rec(nodeId, depth) {
+        snapshot(L_DELEND_SIG, nodeId, depth, "delend called with node pointer n.");
+        const node = nodes.find(n => n.id === nodeId);
+        if (!node) {
+          snapshot(L_IF_HEAD_NULL_DEL, nodeId, depth, "n is nullptr (should not happen here).");
+          snapshot(L_RETURN_IF_NULL_DEL, nodeId, depth, "Return.");
+          return;
+        }
+
+        snapshot(L_IF_SECOND_LAST, nodeId, depth,
+                 "Check if n->next->next == NULL (n is second last?).");
+        const nextNode = nodes.find(n => n.id === node.nextId);
+        if (nextNode && nextNode.nextId === null) {
+          snapshot(L_DELETE_BLOCK_START, nextNode.id, depth,
+                   "Yes: n->next is last node. Delete it.");
+          // delete last node
+          const lastId = nextNode.id;
+          // remove last node from array
+          nodes = nodes.filter(nn => nn.id !== lastId);
+          node.nextId = null;
+          snapshot(L_RETURN_AFTER_DEL, nodeId, depth,
+                   "Set n->next = NULL and return.");
+          return;
+        }
+
+        snapshot(L_IF_HEAD_NULL_DEL, nodeId, depth, "Check if head == NULL (empty list?).");
+        snapshot(L_RETURN_IF_NULL_DEL, nodeId, depth,
+                 "Not empty, continue recursion.");
+        snapshot(L_RECURSE_DELEND, node.nextId, depth + 1, "Recurse: delend(n->next).");
+        rec(node.nextId, depth + 1);
+        snapshot(L_RECURSE_DELEND, nodeId, depth, "Return to previous call.");
+      }
+
+      rec(headId, 0);
+      snapshot(L_DEL_BODY_CALL, headId, 0, "Back in del(): delend finished.");
+      snapshot(L_DEL_SIG, headId, 0, "Final list after deleting last node.");
+      return s;
+    }
+
+    // ============ Drawing linked list ============
+    function renderStep(idx) {
+      if (steps.length === 0) return;
+      const step = steps[Math.min(idx, steps.length - 1)];
+      highlightLine(step.line);
+      statusText.innerHTML =
+        "<b>Depth:</b> " + step.depth +
+        " &nbsp; <b>Note:</b> " + step.msg;
+      drawList(step.nodes, step.headId, step.currentId);
+    }
+
+    function drawList(nodes, headId, currentId) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (canvas.width === 0 || canvas.height === 0) return;
+
+      const visited = [];
+      let cur = headId;
+      const maxNodes = 20;
+      let safety = 0;
+      while (cur !== null && cur !== undefined && safety < maxNodes) {
+        const node = nodes.find(n => n.id === cur);
+        if (!node) break;
+        visited.push(node);
+        cur = node.nextId;
+        safety++;
+      }
+
+      const total = visited.length;
+      if (total === 0) {
+        ctx.fillStyle = "#444";
+        ctx.font = "16px sans-serif";
+        ctx.fillText("List is empty (head = NULL).", 40, canvas.height / 2);
+        return;
+      }
+
+      const boxW = 70;
+      const boxH = 32;
+      const padding = 30;
+      const totalWidth = total * boxW + (total - 1) * padding;
+      const startX = (canvas.width - totalWidth) / 2;
+      const y = canvas.height / 2;
+
+      ctx.font = "13px sans-serif";
+
+      // head label
+      ctx.fillStyle = "#000";
+      ctx.fillText("head", startX - 20, y - 40);
+      ctx.beginPath();
+      ctx.moveTo(startX - 10, y - 35);
+      ctx.lineTo(startX + 10, y - 16);
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      for (let i = 0; i < total; i++) {
+        const node = visited[i];
+        const x = startX + i * (boxW + padding);
+        const isCurrent = node.id === currentId;
+
+        ctx.fillStyle = isCurrent ? "#ffe082" : "#e3f2fd";
+        ctx.strokeStyle = isCurrent ? "#f9a825" : "#1e88e5";
+        ctx.lineWidth = isCurrent ? 3 : 2;
+        ctx.beginPath();
+        ctx.roundRect(x, y - boxH / 2, boxW, boxH, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#000";
+        ctx.font = "14px sans-serif";
+        ctx.fillText(node.value.toString(), x + boxW / 2 - 8, y + 5);
+
+        ctx.fillStyle = "#555";
+        ctx.font = "11px sans-serif";
+        ctx.fillText("node", x + 4, y - boxH / 2 - 4);
+
+        if (i < total - 1) {
+          const x2 = x + boxW;
+          const x3 = x2 + padding;
+          const yMid = y;
+          ctx.strokeStyle = "#444";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x2, yMid);
+          ctx.lineTo(x3 - 10, yMid);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x3 - 10, yMid - 5);
+          ctx.lineTo(x3, yMid);
+          ctx.lineTo(x3 - 10, yMid + 5);
+          ctx.fillStyle = "#444";
+          ctx.fill();
+        } else {
+          ctx.strokeStyle = "#444";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(x + boxW, y - 6);
+          ctx.lineTo(x + boxW + 16, y - 6);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x + boxW, y + 6);
+          ctx.lineTo(x + boxW + 16, y + 6);
+          ctx.stroke();
+          ctx.fillStyle = "#444";
+          ctx.font = "11px sans-serif";
+          ctx.fillText("next = NULL", x + boxW + 20, y + 4);
+        }
+      }
+    }
+
+    // ============ Step / play control ============
+    function resetSimulation() {
+      if (mode === "insert") {
+        steps = buildInsertSteps();
+        scenarioDesc.innerHTML =
+          'Starting list: <code>5 → 6 → 8</code>.<br>' +
+          'Insertion: <code>app(9)</code> calls <code>apple(head, 9)</code> and inserts 9 at the end.';
+      } else {
+        steps = buildDeleteSteps();
+        scenarioDesc.innerHTML =
+          'Starting list: <code>5 → 6 → 8 → 9</code>.<br>' +
+          'Deletion: <code>del()</code> calls <code>delend(head)</code> and removes the last node.';
+      }
+      currentStep = 0;
+      if (playTimer) {
+        clearInterval(playTimer);
+        playTimer = null;
+        btnPlay.textContent = "▶ Auto Play";
+      }
+      renderStep(currentStep);
+    }
+
+    btnStep.addEventListener("click", () => {
+      if (steps.length === 0) return;
+      if (currentStep < steps.length - 1) currentStep++;
+      renderStep(currentStep);
+    });
+
+    btnPlay.addEventListener("click", () => {
+      if (playTimer) {
+        clearInterval(playTimer);
+        playTimer = null;
+        btnPlay.textContent = "▶ Auto Play";
+        return;
+      }
+      btnPlay.textContent = "⏸ Pause";
+      playTimer = setInterval(() => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          renderStep(currentStep);
+        } else {
+          clearInterval(playTimer);
+          playTimer = null;
+          btnPlay.textContent = "▶ Auto Play";
+        }
+      }, 700); // ms per step
+    });
+
+    btnReset.addEventListener("click", () => {
+      resetSimulation();
+    });
+
+    btnInsert.addEventListener("click", () => {
+      mode = "insert";
+      btnInsert.classList.add("active");
+      btnDelete.classList.remove("active");
+      resetSimulation();
+    });
+
+    btnDelete.addEventListener("click", () => {
+      mode = "delete";
+      btnDelete.classList.add("active");
+      btnInsert.classList.remove("active");
+      resetSimulation();
+    });
+
+    // ============ Init ============
+    renderCode();
+    resetSimulation();
+  </script>
+</body>
+</html>
